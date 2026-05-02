@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4821475791710643382
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2138628504926886106}
+  - component: {fileID: 6828939768859668659}
+  m_Layer: 0
+  m_Name: BgManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2138628504926886106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4821475791710643382}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6828939768859668659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4821475791710643382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ae376af017174a4dbc51735fedba8f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BackgroundManager
+  backgroundSprites:
+  - {fileID: -5621275025976656576, guid: 9597cdfea8cd7c743948097ed578a8ee, type: 3}
+  - {fileID: -353356149577196032, guid: 355855599d4c33141a6b9b9e4d69b2e1, type: 3}
+  - {fileID: -6692808124557642240, guid: 3257223f56a85aa47a3a319d502e9cc5, type: 3}
+  - {fileID: 5325404162130236834, guid: ac56a93b03c767c4d90e1c4383be6573, type: 3}
+  - {fileID: 3474680605934071138, guid: 4d80f7edcbab8a94a82d40f1b470a66a, type: 3}
+  - {fileID: -4177933735123865980, guid: 8e87f32c46d07a446ab9c53514e116cf, type: 3}
+  - {fileID: 1549933807502841631, guid: 19d72bc6905e7414fac4cbd4ced444e7, type: 3}
+  - {fileID: -4522424981588089550, guid: f5d0e5080b29bd049a455e6e1b63176a, type: 3}
+  - {fileID: 581627081512568891, guid: 2d59b73f0deac814b8a87d598e17c102, type: 3}
+  switchInterval: 10
+  fadeDuration: 1.5
+  _bgImage1: {fileID: 0}
+  _bgImage2: {fileID: 0}

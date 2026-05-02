@@ -20,6 +20,7 @@ public class Bootstrap : MonoBehaviour
     [Tooltip("Assign an FXManager prefab with particle prefabs configured in Inspector")]
     public FXManager fxManagerPrefab;
 
+
     [Header("Game Prefabs")]
     [Tooltip("Beyaz renkli, sağa bakan standart Arrow prefab'ı")]
     public Arrow arrowPrefab;
@@ -97,18 +98,13 @@ public class Bootstrap : MonoBehaviour
         }
     }
 
+
     static void SetupCamera()
     {
-        GameObject camGO = new GameObject("MainCamera");
-        camGO.tag = "MainCamera";
-        Camera cam = camGO.AddComponent<Camera>();
+        GameObject camGO = GameObject.FindGameObjectWithTag("MainCamera");
+        Camera cam = camGO.GetComponent<Camera>();
         cam.orthographic = true;
         cam.orthographicSize = 5f;
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        // Clean solid background
-        cam.backgroundColor = new Color(0.95f, 0.95f, 0.98f);
-        cam.nearClipPlane = -10f;
-        cam.farClipPlane = 10f;
         camGO.AddComponent<AudioListener>();
         camGO.AddComponent<Physics2DRaycaster>(); // Enables IPointerDownHandler for 2D colliders
     }
@@ -134,8 +130,7 @@ public class Bootstrap : MonoBehaviour
 
         CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.referenceResolution = new Vector2(1080, 2400);
         scaler.matchWidthOrHeight = 0.5f;
 
         canvasGO.AddComponent<GraphicRaycaster>();

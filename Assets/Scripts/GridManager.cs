@@ -59,8 +59,13 @@ public class GridManager : MonoBehaviour
         // Adapt camera size to grid
         float totalW = _width * (CellSize + CellGap);
         float totalH = _height * (CellSize + CellGap);
-        float camSize = Mathf.Max(totalW, totalH) * 0.55f + 0.5f;
-        Camera.main.orthographicSize = camSize;
+        
+        float aspect = (float)Screen.width / Screen.height;
+        // Add 2f to total size (1 unit padding on each side)
+        float requiredSizeY = (totalH + 2f) / 2f;
+        float requiredSizeX = ((totalW + 2f) / 2f) / aspect;
+        
+        Camera.main.orthographicSize = Mathf.Max(requiredSizeX, requiredSizeY);
 
         // Centre grid at world origin
         _gridOrigin = new Vector3(
