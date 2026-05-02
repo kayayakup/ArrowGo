@@ -32,14 +32,14 @@ public class UIManager : MonoBehaviour
     TextMeshProUGUI _moveLabel;
     Image[] _heartImages;
 
-    // Premium Color Palette
-    static readonly Color PanelBg = new Color(0.08f, 0.08f, 0.12f, 0.98f);
-    static readonly Color GlassBg = new Color(0.15f, 0.15f, 0.25f, 0.85f);
-    static readonly Color AccentPrimary = new Color(0.40f, 0.70f, 1.00f);
-    static readonly Color AccentSuccess = new Color(0.40f, 1.00f, 0.70f);
-    static readonly Color AccentDanger = new Color(1.00f, 0.40f, 0.50f);
-    static readonly Color HeartFull = new Color(1f, 0.25f, 0.45f);
-    static readonly Color HeartEmpty = new Color(0.2f, 0.2f, 0.25f);
+    // Vibrant Solid Color Palette
+    static readonly Color PanelBg = new Color(0.10f, 0.12f, 0.16f, 1.0f); // Solid dark
+    static readonly Color SolidBg = new Color(0.18f, 0.22f, 0.30f, 1.0f); // Replaces GlassBg
+    static readonly Color AccentPrimary = new Color(0.25f, 0.55f, 1.00f, 1.0f); // Royal Blue
+    static readonly Color AccentSuccess = new Color(0.20f, 0.80f, 0.40f, 1.0f); // Emerald Green
+    static readonly Color AccentDanger = new Color(0.95f, 0.30f, 0.30f, 1.0f); // Vivid Red
+    static readonly Color HeartFull = new Color(1.00f, 0.25f, 0.45f, 1.0f);
+    static readonly Color HeartEmpty = new Color(0.30f, 0.30f, 0.35f, 1.0f);
 
     void Awake()
     {
@@ -190,8 +190,8 @@ public class UIManager : MonoBehaviour
         SetAnchors(_moveLabel.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -210f), new Vector2(300f, 40f));
 
         // Bottom Nav
-        CreateButton("HintBtn", _gameplayPanel.transform, "HINT", new Vector2(0.3f, 0.1f), new Vector2(0.3f, 0.1f), Vector2.zero, new Vector2(180f, 70f), GlassBg, () => HintSystem.Instance.ShowHint());
-        CreateButton("MenuBtn", _gameplayPanel.transform, "MENU", new Vector2(0.7f, 0.1f), new Vector2(0.7f, 0.1f), Vector2.zero, new Vector2(180f, 70f), GlassBg, () => GameManager.Instance.ReturnToLevelSelect());
+        CreateButton("HintBtn", _gameplayPanel.transform, "HINT", new Vector2(0.3f, 0.1f), new Vector2(0.3f, 0.1f), Vector2.zero, new Vector2(180f, 70f), SolidBg, () => HintSystem.Instance.ShowHint());
+        CreateButton("MenuBtn", _gameplayPanel.transform, "MENU", new Vector2(0.7f, 0.1f), new Vector2(0.7f, 0.1f), Vector2.zero, new Vector2(180f, 70f), SolidBg, () => GameManager.Instance.ReturnToLevelSelect());
     }
 
     void BuildLevelSelectPanel()
@@ -213,7 +213,7 @@ public class UIManager : MonoBehaviour
             btnGO.transform.SetParent(contentRT, false);
             
             Image bg = btnGO.AddComponent<Image>();
-            bg.sprite = TextureGenerator.CreateRoundedRectSprite(isUnlocked ? GlassBg : new Color(0.1f, 0.1f, 0.15f));
+            bg.sprite = TextureGenerator.CreateRoundedRectSprite(isUnlocked ? SolidBg : new Color(0.2f, 0.2f, 0.25f, 1.0f));
             
             if (isUnlocked)
             {
@@ -228,14 +228,14 @@ public class UIManager : MonoBehaviour
         }
 
         // Settings Button
-        CreateButton("Settings", _levelSelectPanel.transform, "SETTINGS", new Vector2(0.5f, 0.08f), new Vector2(0.5f, 0.08f), Vector2.zero, new Vector2(220f, 60f), GlassBg, () => ShowSettings());
+        CreateButton("Settings", _levelSelectPanel.transform, "SETTINGS", new Vector2(0.5f, 0.08f), new Vector2(0.5f, 0.08f), Vector2.zero, new Vector2(220f, 60f), SolidBg, () => ShowSettings());
     }
 
     void BuildLevelCompletePanel(int stars, int nextLevelIndex)
     {
-        _levelCompletePanel = CreatePanel("LevelComplete", new Color(0, 0, 0, 0.85f));
+        _levelCompletePanel = CreatePanel("LevelComplete", new Color(0.1f, 0.1f, 0.15f, 1.0f)); // Solid background
         GameObject card = CreateContainer("Card", _levelCompletePanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(600f, 500f));
-        card.AddComponent<Image>().sprite = TextureGenerator.CreateRoundedRectSprite(GlassBg);
+        card.AddComponent<Image>().sprite = TextureGenerator.CreateRoundedRectSprite(SolidBg);
         
         CreateText("Title", card.transform, "EXCELLENT!", 48, TextAlignmentOptions.Center, AccentSuccess).rectTransform.anchoredPosition = new Vector2(0, 180f);
         
@@ -250,7 +250,7 @@ public class UIManager : MonoBehaviour
 
     void BuildGameOverPanel()
     {
-        _gameOverPanel = CreatePanel("GameOver", new Color(0.2f, 0, 0, 0.8f));
+        _gameOverPanel = CreatePanel("GameOver", new Color(0.25f, 0.05f, 0.05f, 1.0f)); // Solid dark red
         CreateText("Title", _gameOverPanel.transform, "OUT OF LIVES", 56, TextAlignmentOptions.Center, Color.white).rectTransform.anchoredPosition = new Vector2(0, 100f);
         CreateButton("Retry", _gameOverPanel.transform, "RETRY", new Vector2(0.5f, 0.4f), new Vector2(0.5f, 0.4f), Vector2.zero, new Vector2(300f, 90f), AccentDanger, () => GameManager.Instance.RestartLevel());
     }
@@ -259,9 +259,9 @@ public class UIManager : MonoBehaviour
     {
         if (_settingsPanel != null) { Destroy(_settingsPanel); _settingsPanel = null; return; }
 
-        _settingsPanel = CreatePanel("Settings", new Color(0, 0, 0, 0.8f));
+        _settingsPanel = CreatePanel("Settings", new Color(0.1f, 0.1f, 0.15f, 1.0f));
         GameObject card = CreateContainer("Card", _settingsPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 400f));
-        card.AddComponent<Image>().sprite = TextureGenerator.CreateRoundedRectSprite(GlassBg);
+        card.AddComponent<Image>().sprite = TextureGenerator.CreateRoundedRectSprite(SolidBg);
 
         CreateText("Title", card.transform, "SETTINGS", 32, TextAlignmentOptions.Center, Color.white).rectTransform.anchoredPosition = new Vector2(0, 140f);
 
@@ -343,7 +343,12 @@ public class UIManager : MonoBehaviour
         img.sprite = TextureGenerator.CreateRoundedRectSprite(color);
         img.type = Image.Type.Sliced;
         Button btn = go.AddComponent<Button>();
-        btn.onClick.AddListener(() => AudioManager.Instance.PlaySFX("buttonClick"));
+        btn.onClick.AddListener(() => 
+        {
+            AudioManager.Instance.PlaySFX("buttonClick");
+            if (FXManager.Instance != null)
+                FXManager.Instance.PlayButtonClick(go.transform.position);
+        });
         btn.onClick.AddListener(onClick);
         
         TextMeshProUGUI txt = CreateText("Label", go.transform, label, 24, TextAlignmentOptions.Center, Color.white);

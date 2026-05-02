@@ -2,62 +2,63 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// TextureGenerator — Updated to create distinct, high-quality arrow shapes.
+/// TextureGenerator — Creates solid, vibrant, colorful sprites.
+/// No blur — clean edges with subtle shading for depth.
 /// </summary>
 public static class TextureGenerator
 {
     static Dictionary<string, Sprite> _cache = new();
-    static Color[] _dirColors;
 
-    static void EnsureColors()
+    // ── Solid Direction Color Palette ────────────────────────────
+    // Fixed vibrant colors per direction — no randomness
+    static readonly Color[] DirColors = new Color[]
     {
-        if (_dirColors != null) return;
-        _dirColors = new Color[4];
-        for (int i = 0; i < 4; i++)
-        {
-            float hue = (i * 0.25f + Random.Range(0f, 0.15f)) % 1f;
-            _dirColors[i] = Color.HSVToRGB(hue, 0.8f, 0.95f);
-        }
-    }
+        new Color(0.20f, 0.80f, 0.40f),  // Up    = Emerald Green
+        new Color(0.95f, 0.30f, 0.30f),  // Down  = Vivid Red
+        new Color(0.25f, 0.55f, 1.00f),  // Left  = Royal Blue
+        new Color(1.00f, 0.65f, 0.10f),  // Right = Amber Orange
+    };
 
     public static Color GetColorForDirection(Direction dir)
     {
-        EnsureColors();
-        return _dirColors[(int)dir];
+        return DirColors[(int)dir];
     }
 
     public static Sprite CreateArrowSprite(Direction dir)
     {
-        string key = "ArrowShape_" + dir;
+        string key = "ArrowSolid_" + dir;
         if (_cache.TryGetValue(key, out Sprite cached)) return cached;
 
         int size = 128;
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        tex.filterMode = FilterMode.Point;
+        tex.filterMode = FilterMode.Bilinear;
+
+        Color baseColor = DirColors[(int)dir];
 
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
-                // ── Arrow Shape with AA ────────────────────────────
                 if (IsInsideArrow(x, y, size, dir, out float dist))
                 {
-                    float aa = Mathf.Clamp01(-dist / 0.8f);
+                    float aa = Mathf.Clamp01(-dist / 1.2f);
                     if (aa > 0)
                     {
-                        // Clean gradient for the arrow body (grayscale for tinting)
-                        float grad = (x + y) / (float)(size * 2);
-                        Color col = Color.Lerp(new Color(0.55f, 0.55f, 0.55f), Color.white, grad);
-                        
-                        // Subtle inner glow
-                        float innerBorder = Mathf.Clamp01((dist + 4f) / 3f);
-                        col = Color.Lerp(col, Color.white, innerBorder * 0.35f);
-                        
-                        // Dark outline at the very edge to pop from background
-                        float outline = Mathf.Clamp01((dist + 2.5f) / 2.5f);
-                        col = Color.Lerp(col, new Color(0.1f, 0.1f, 0.1f), outline * 0.6f);
-                        
-                        col.a *= aa;
+                        // Solid base with subtle top-to-bottom gradient for depth
+                        float gradientFactor = (float)y / size;
+                        Color col = Color.Lerp(baseColor * 0.85f, baseColor * 1.1f, gradientFactor);
+
+                        // Crisp white inner highlight near the top
+                        float highlightDist = Mathf.Clamp01((dist + 8f) / 6f);
+                        col = Color.Lerp(col, Color.white, highlightDist * 0.20f * gradientFactor);
+
+                        // Dark edge outline — thin and clean
+                        float outline = Mathf.Clamp01((dist + 2.0f) / 1.5f);
+                        Color darkEdge = baseColor * 0.4f;
+                        darkEdge.a = 1f;
+                        col = Color.Lerp(col, darkEdge, outline * 0.7f);
+
+                        col.a = aa;
                         tex.SetPixel(x, y, col);
                         continue;
                     }
@@ -90,9 +91,9 @@ public static class TextureGenerator
 
         // --- SDF for a "Stylish Arrow" ---
         // 1. Triangle Head
-        float dHead = SdTriangle(new Vector2(tx, ty - 0.25f), 
-                                 new Vector2(-0.65f, 0), 
-                                 new Vector2(0.65f, 0), 
+        float dHead = SdTriangle(new Vector2(tx, ty - 0.25f),
+                                 new Vector2(-0.65f, 0),
+                                 new Vector2(0.65f, 0),
                                  new Vector2(0, 0.65f));
 
         // 2. Rounded Shaft
@@ -122,21 +123,29 @@ public static class TextureGenerator
         return Vector2.Max(d, Vector2.zero).magnitude + Mathf.Min(Mathf.Max(d.x, d.y), 0.0f);
     }
 
+    // ── Grid Cell Sprite — Solid with rounded corners ───────────
     public static Sprite CreateSquareSprite(Color color)
     {
         int size = 128;
-        Texture2D tex = new Texture2D(size, size);
-        tex.filterMode = FilterMode.Point;
-        Color[] pixels = new Color[size * size];
+        int radius = 16;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
+                float dist = GetDistanceToRoundedRect(x, y, size, size, radius);
+                float alpha = Mathf.Clamp01(-dist / 1.2f);
+
+                // Solid color with very subtle vertical gradient
                 float g = (float)y / size;
-                pixels[y * size + x] = Color.Lerp(color * 0.95f, color * 1.05f, g);
+                Color c = Color.Lerp(color * 0.96f, color * 1.04f, g);
+                c.a = alpha;
+                tex.SetPixel(x, y, c);
             }
         }
-        tex.SetPixels(pixels); tex.Apply();
+        tex.Apply();
         return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), (float)size);
     }
 
@@ -153,8 +162,9 @@ public static class TextureGenerator
                 float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
                 float alpha = Mathf.Clamp01((r - dist) / 1.5f);
                 Color c = color;
-                float highlight = Mathf.Clamp01((10f - Vector2.Distance(new Vector2(x, y), new Vector2(cx - r*0.3f, cy + r*0.3f))) / 8f);
-                c = Color.Lerp(c, Color.white, highlight * 0.5f);
+                // Small specular highlight
+                float highlight = Mathf.Clamp01((10f - Vector2.Distance(new Vector2(x, y), new Vector2(cx - r * 0.3f, cy + r * 0.3f))) / 8f);
+                c = Color.Lerp(c, Color.white, highlight * 0.4f);
                 c.a *= alpha;
                 tex.SetPixel(x, y, c);
             }
@@ -177,7 +187,7 @@ public static class TextureGenerator
                 float dist = GetDistanceToRoundedRect(x, y, size, size, radius);
                 float alpha = Mathf.Clamp01(-dist / 1.5f);
                 Color c = color;
-                c = Color.Lerp(c * 0.9f, c * 1.1f, (float)y / size);
+                c = Color.Lerp(c * 0.92f, c * 1.08f, (float)y / size);
                 c.a *= alpha;
                 tex.SetPixel(x, y, c);
             }

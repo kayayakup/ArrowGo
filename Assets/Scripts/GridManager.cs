@@ -29,6 +29,11 @@ public class GridManager : MonoBehaviour
     public float CellGap { get; private set; } = 0.05f;
     Vector3 _gridOrigin;
 
+    // ── Cell Colors ──────────────────────────────────────────────
+    // Alternating solid cell colors for a clean checkerboard look
+    static readonly Color CellColorA = new Color(0.92f, 0.92f, 0.96f, 1f);
+    static readonly Color CellColorB = new Color(0.86f, 0.86f, 0.92f, 1f);
+
     // ── Parent GameObject ─────────────────────────────────────────
     GameObject _gridRoot;
 
@@ -94,8 +99,13 @@ public class GridManager : MonoBehaviour
         cell.transform.position = GridToWorld(col, row);
 
         SpriteRenderer sr = cell.AddComponent<SpriteRenderer>();
+
+        // Alternating solid cell colors — clean checkerboard
+        bool isEven = (col + row) % 2 == 0;
+        Color cellColor = isEven ? CellColorA : CellColorB;
+
         sr.sprite = TextureGenerator.CreateSquareSprite(Color.white);
-        sr.color = new Color(0.88f, 0.88f, 0.95f, 1f);
+        sr.color = cellColor;
         sr.sortingOrder = -1;
         // Sprite is 1 world unit natively, scale to fill cell
         cell.transform.localScale = Vector3.one * CellSize;
@@ -104,20 +114,31 @@ public class GridManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────
     void PlaceArrow(int col, int row, Direction dir)
     {
-        GameObject go = new GameObject($"Arrow_{col}_{row}");
-        go.transform.SetParent(_gridRoot.transform);
-        go.transform.position = GridToWorld(col, row);
-        // Sprite is 1 world unit natively, scale to 75% of cell so it sits inside with margin
-        go.transform.localScale = Vector3.one * (CellSize * 0.75f);
+        Arrow arrow;
+        Vector3 worldPos = GridToWorld(col, row);
 
-        // Sprite
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = TextureGenerator.CreateArrowSprite(dir);
-        sr.sortingOrder = 1;
+        if (Bootstrap.Instance != null && Bootstrap.Instance.arrowPrefab != null)
+        {
+            arrow = Instantiate(Bootstrap.Instance.arrowPrefab, worldPos, Quaternion.identity, _gridRoot.transform);
+            arrow.name = $"Arrow_{col}_{row}";
+            arrow.transform.localScale = Vector3.one * (CellSize * 0.75f);
+        }
+        else
+        {
+            // Fallback
+            GameObject go = new GameObject($"Arrow_{col}_{row}");
+            go.transform.SetParent(_gridRoot.transform);
+            go.transform.position = worldPos;
+            go.transform.localScale = Vector3.one * (CellSize * 0.75f);
 
-        // Arrow component
-        Arrow arrow = go.AddComponent<Arrow>();
-        arrow.Init(this, dir, col, row, GridToWorld(col, row));
+            SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = TextureGenerator.CreateArrowSprite(dir);
+            sr.sortingOrder = 1;
+
+            arrow = go.AddComponent<Arrow>();
+        }
+
+        arrow.Init(this, dir, col, row, worldPos);
         _grid[col, row] = arrow;
     }
 
@@ -181,6 +202,9 @@ public class GridManager : MonoBehaviour
         // Slide with overshoot
         yield return StartCoroutine(SimpleTween.MoveTo(
             arrow.gameObject, exitPos, 0.4f, SimpleTween.Ease.CubicIn));
+
+        // Play exit FX before destroying
+        arrow.PlayExitFX();
 
         Destroy(arrow.gameObject);
         _arrowsRemaining--;

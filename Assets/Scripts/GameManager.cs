@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 
 /// <summary>
@@ -95,6 +95,10 @@ public class GameManager : MonoBehaviour
         UIManager.Instance.UpdateLives(CurrentLives);
         AudioManager.Instance.PlaySFX("lifeLost");
 
+        // Life lost particle at screen center
+        if (FXManager.Instance != null)
+            FXManager.Instance.PlayLifeLost(Camera.main.transform.position);
+
         if (CurrentLives <= 0)
         {
             GameOver();
@@ -125,6 +129,11 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
 
         AudioManager.Instance.PlaySFX("levelComplete");
+
+        // Big celebration particle
+        if (FXManager.Instance != null)
+            FXManager.Instance.PlayLevelComplete(Camera.main.transform.position);
+
         UIManager.Instance.ShowLevelCompletePanel(stars, nextLevel, CurrentLevel);
     }
 
@@ -133,6 +142,11 @@ public class GameManager : MonoBehaviour
     {
         ChangeState(GameState.GameOver);
         AudioManager.Instance.PlaySFX("fail");
+
+        // Game over particle
+        if (FXManager.Instance != null)
+            FXManager.Instance.PlayGameOver(Camera.main.transform.position);
+
         UIManager.Instance.ShowGameOverPanel();
     }
 

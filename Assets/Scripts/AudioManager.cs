@@ -3,26 +3,55 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// AudioManager — Manages BGM and SFX channels with procedural synthesis fallback.
+/// AudioManager — Manages BGM and SFX channels.
+/// All audio clips are assigned via Inspector (drag & drop).
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
-    public static void CreateInstance()
-    {
-        GameObject go = new GameObject("AudioManager");
-        Instance = go.AddComponent<AudioManager>();
-        DontDestroyOnLoad(go);
-    }
+    // ── Inspector: Background Music ─────────────────────────────
+    [Header("Background Music")]
+    public AudioClip bgMusicClip;
 
+    // ── Inspector: SFX Clips ────────────────────────────────────
+    [Header("SFX — Arrow Actions")]
+    [Tooltip("Played when an arrow is tapped")]
+    public AudioClip tapClip;
+
+    [Tooltip("Played when an arrow slides out successfully")]
+    public AudioClip slideClip;
+
+    [Tooltip("Played on a successful move")]
+    public AudioClip successClip;
+
+    [Header("SFX — Negative Feedback")]
+    [Tooltip("Played on collision / failed move")]
+    public AudioClip failClip;
+
+    [Tooltip("Played when a life is lost")]
+    public AudioClip lifeLostClip;
+
+    [Header("SFX — Game Events")]
+    [Tooltip("Played when level is completed")]
+    public AudioClip levelCompleteClip;
+
+    [Tooltip("Played on button click")]
+    public AudioClip buttonClickClip;
+
+    [Tooltip("Played on game over")]
+    public AudioClip gameOverClip;
+
+    [Tooltip("Played when hint is shown")]
+    public AudioClip hintClip;
+
+    // ── Internal ────────────────────────────────────────────────
     AudioSource _bgmSource;
     AudioSource _sfxSource;
 
     float _musicVolume = 0.8f;
     float _sfxVolume = 1.0f;
 
-    static readonly string[] ClipNames = { "tap", "slide", "success", "fail", "levelComplete", "buttonClick", "lifeLost" };
     Dictionary<string, AudioClip> _clips = new();
 
     void Awake()
@@ -36,17 +65,27 @@ public class AudioManager : MonoBehaviour
         _bgmSource = gameObject.AddComponent<AudioSource>();
         _bgmSource.loop = true;
         _bgmSource.volume = _musicVolume;
-        _bgmSource.clip = Resources.Load<AudioClip>("Audio/bgMusic");
+        _bgmSource.clip = bgMusicClip;
 
         _sfxSource = gameObject.AddComponent<AudioSource>();
         _sfxSource.loop = false;
         _sfxSource.volume = _sfxVolume;
 
-        foreach (string name in ClipNames)
-        {
-            AudioClip clip = Resources.Load<AudioClip>("Audio/" + name);
-            if (clip != null) _clips[name] = clip;
-        }
+        // Map clip names to Inspector-assigned clips
+        RegisterClip("tap", tapClip);
+        RegisterClip("slide", slideClip);
+        RegisterClip("success", successClip);
+        RegisterClip("fail", failClip);
+        RegisterClip("lifeLost", lifeLostClip);
+        RegisterClip("levelComplete", levelCompleteClip);
+        RegisterClip("buttonClick", buttonClickClip);
+        RegisterClip("gameOver", gameOverClip);
+        RegisterClip("hint", hintClip);
+    }
+
+    void RegisterClip(string name, AudioClip clip)
+    {
+        if (clip != null) _clips[name] = clip;
     }
 
     public void PlayMusic()
@@ -64,7 +103,7 @@ public class AudioManager : MonoBehaviour
         if (_clips.TryGetValue(clipName, out AudioClip clip))
             _sfxSource.PlayOneShot(clip, _sfxVolume);
         else
-            StartCoroutine(PlaySynthTone(clipName));
+            Debug.LogWarning("Missing SFX clip: " + clipName);
     }
 
     public void SetMusicVolume(float vol)
@@ -79,48 +118,4 @@ public class AudioManager : MonoBehaviour
         if (_sfxSource != null) _sfxSource.volume = _sfxVolume;
     }
 
-    IEnumerator PlaySynthTone(string clipName)
-    {
-        float freq = GetSynthFreq(clipName);
-        float duration = GetSynthDuration(clipName);
-        AudioClip synth = SynthesiseTone(freq, duration, clipName);
-        _sfxSource.PlayOneShot(synth, _sfxVolume * 0.4f);
-        yield return new WaitForSeconds(duration + 0.1f);
-        Destroy(synth);
-    }
-
-    static float GetSynthFreq(string name) => name switch
-    {
-        "tap" => 800f,
-        "slide" => 400f,
-        "success" => 1200f,
-        "fail" => 150f,
-        "levelComplete" => 900f,
-        "buttonClick" => 600f,
-        "lifeLost" => 250f,
-        _ => 440f
-    };
-
-    static float GetSynthDuration(string name) => name switch
-    {
-        "levelComplete" => 0.8f, "slide" => 0.3f, "fail" => 0.5f, "lifeLost" => 0.4f, _ => 0.1f
-    };
-
-    static AudioClip SynthesiseTone(float frequency, float duration, string name)
-    {
-        int sampleRate = 44100;
-        int samples = Mathf.CeilToInt(sampleRate * duration);
-        float[] data = new float[samples];
-        for (int i = 0; i < samples; i++)
-        {
-            float t = (float)i / sampleRate;
-            float env = 1f - (t / duration);
-            float val = Mathf.Sin(2f * Mathf.PI * frequency * t) * env;
-            if (name == "slide") val = Mathf.Sin(2f * Mathf.PI * (frequency * (1f + t * 2f)) * t) * env;
-            data[i] = val * 0.3f;
-        }
-        AudioClip clip = AudioClip.Create("Synth_" + name, samples, 1, sampleRate, false);
-        clip.SetData(data, 0);
-        return clip;
-    }
 }

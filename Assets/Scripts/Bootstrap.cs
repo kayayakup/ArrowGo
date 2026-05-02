@@ -5,18 +5,33 @@ using UnityEngine.UI;
 /// <summary>
 /// Bootstrap — Attach ONLY this script to an empty GameObject in an empty scene.
 /// Everything else is created programmatically at runtime.
+/// 
+/// For AudioManager and FXManager, assign prefabs or scene references
+/// via the Inspector fields below. If left empty, empty instances are created.
+/// </summary>
 public class Bootstrap : MonoBehaviour
 {
-    static Bootstrap _instance;
+    public static Bootstrap Instance { get; private set; }
+
+    [Header("Manager Prefabs (Optional — drag & drop)")]
+    [Tooltip("Assign an AudioManager prefab with audio clips configured in Inspector")]
+    public AudioManager audioManagerPrefab;
+
+    [Tooltip("Assign an FXManager prefab with particle prefabs configured in Inspector")]
+    public FXManager fxManagerPrefab;
+
+    [Header("Game Prefabs")]
+    [Tooltip("Beyaz renkli, sağa bakan standart Arrow prefab'ı")]
+    public Arrow arrowPrefab;
 
     void Awake()
     {
-        if (_instance != null)
+        if (Instance != null)
         {
             Destroy(gameObject);
             return;
         }
-        _instance = this;
+        Instance = this;
         
         // Prevent this object from being destroyed on scene load
         DontDestroyOnLoad(gameObject);
@@ -31,7 +46,8 @@ public class Bootstrap : MonoBehaviour
         GameObject canvasGO = SetupCanvas();
 
         // ── 4. Singleton Managers ──────────────────────────────
-        AudioManager.CreateInstance();
+        SetupAudioManager();
+        SetupFXManager();
         LevelManager.CreateInstance();
         GameManager.CreateInstance();
         GridManager.CreateInstance();
@@ -45,6 +61,42 @@ public class Bootstrap : MonoBehaviour
         GameManager.Instance.StartGame();
     }
 
+    void SetupAudioManager()
+    {
+        if (audioManagerPrefab != null)
+        {
+            // Instantiate from prefab (has Inspector-configured clips)
+            AudioManager instance = Instantiate(audioManagerPrefab);
+            instance.name = "AudioManager";
+            DontDestroyOnLoad(instance.gameObject);
+        }
+        else
+        {
+            // Fallback: create empty AudioManager (will use synth tones)
+            GameObject go = new GameObject("AudioManager");
+            go.AddComponent<AudioManager>();
+            DontDestroyOnLoad(go);
+        }
+    }
+
+    void SetupFXManager()
+    {
+        if (fxManagerPrefab != null)
+        {
+            // Instantiate from prefab (has Inspector-configured particle prefabs)
+            FXManager instance = Instantiate(fxManagerPrefab);
+            instance.name = "FXManager";
+            DontDestroyOnLoad(instance.gameObject);
+        }
+        else
+        {
+            // Fallback: create empty FXManager (no particles, but won't crash)
+            GameObject go = new GameObject("FXManager");
+            go.AddComponent<FXManager>();
+            DontDestroyOnLoad(go);
+        }
+    }
+
     static void SetupCamera()
     {
         GameObject camGO = new GameObject("MainCamera");
@@ -53,8 +105,8 @@ public class Bootstrap : MonoBehaviour
         cam.orthographic = true;
         cam.orthographicSize = 5f;
         cam.clearFlags = CameraClearFlags.SolidColor;
-        // Soft pastel background
-        cam.backgroundColor = new Color(0.94f, 0.94f, 0.98f);
+        // Clean solid background
+        cam.backgroundColor = new Color(0.95f, 0.95f, 0.98f);
         cam.nearClipPlane = -10f;
         cam.farClipPlane = 10f;
         camGO.AddComponent<AudioListener>();
