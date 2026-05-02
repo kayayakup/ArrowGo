@@ -726,7 +726,7 @@ MonoBehaviour:
   failClip: {fileID: 0}
   lifeLostClip: {fileID: 0}
   levelCompleteClip: {fileID: 0}
-  buttonClickClip: {fileID: 0}
+  buttonClickClip: {fileID: 8300000, guid: ab7f421ad803a894fb4f2fae8fa250a4, type: 3}
   gameOverClip: {fileID: 0}
   hintClip: {fileID: 0}
 --- !u!114 &1656314248
@@ -741,15 +741,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc95ddac301c8464fb1a4c9961d5eb4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FXManager
-  arrowSlideStartFX: {fileID: 0}
-  arrowSlideTrailFX: {fileID: 0}
-  arrowFailFX: {fileID: 0}
-  lifeLostFX: {fileID: 0}
-  arrowExitFX: {fileID: 0}
-  levelCompleteFX: {fileID: 0}
-  buttonClickFX: {fileID: 0}
-  hintFX: {fileID: 0}
-  gameOverFX: {fileID: 0}
+  arrowSlideStartFX: {fileID: 19859158, guid: b043edfe6ed22be46b3d939fd3f3e5bb, type: 3}
+  arrowSlideTrailFX: {fileID: 19803444, guid: 8044ac9735b9a6e4dbb4a2f0077df40f, type: 3}
+  arrowFailFX: {fileID: 19862388, guid: d788483dee89ba84494ca6b444059981, type: 3}
+  lifeLostFX: {fileID: 198779045339133566, guid: cb9bf8f7ab7299344a48e3eb96d6a266, type: 3}
+  arrowExitFX: {fileID: 19890816, guid: 72eec0d451241354eaba5dd6caf318ab, type: 3}
+  levelCompleteFX: {fileID: 19877600, guid: 36bdc02b23d9ca94d93bd715c0cca5c0, type: 3}
+  buttonClickFX: {fileID: 19848150, guid: 00dac97cdd613fe49a4eb911783ae686, type: 3}
+  hintFX: {fileID: 19836462, guid: 80c6b5d330112ef41800a729a58d22e7, type: 3}
+  gameOverFX: {fileID: 19826678, guid: c05e92eaee7a00844867e5edc8e0dde1, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
