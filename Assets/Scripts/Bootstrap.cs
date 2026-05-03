@@ -47,8 +47,8 @@ public class Bootstrap : MonoBehaviour
         GameObject canvasGO = SetupCanvas();
 
         // ── 4. Singleton Managers ──────────────────────────────
-        SetupAudioManager();
-        SetupFXManager();
+        //SetupAudioManager();
+        //SetupFXManager();
         LevelManager.CreateInstance();
         GameManager.CreateInstance();
         GridManager.CreateInstance();
